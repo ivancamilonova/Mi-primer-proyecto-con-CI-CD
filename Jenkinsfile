@@ -9,13 +9,20 @@ pipeline {
             }
         }
         stage('Ejecutar Pruebas (CI)') {
-            agent {
-                // Le dice a Jenkins: "Baja una imagen oficial de Python aislada para correr esta prueba"
-                docker { image 'python:3.10-slim' }
-            }
             steps {
-                echo 'Corriendo pruebas de software automáticas dentro de un entorno aislado de Python...'
-                sh 'python test_app.py'
+                echo 'Corriendo pruebas de software automáticas usando el entorno de desarrollo...'
+                
+                // Explicación técnica: Como el comando 'python3' no existe dentro del contenedor de Jenkins,
+                // usamos el binario estático de Python para entornos embebidos si es necesario,
+                // o forzamos la instalación rápida de Python dentro del contenedor usando los comandos nativos.
+                
+                sh '''
+                    if ! command -v python3 &> /dev/null; then
+                        echo "Instalando un entorno ligero de Python en el contenedor para la prueba..."
+                        apt-get update && apt-get install -y python3
+                    fi
+                    python3 test_app.py
+                '''
             }
         }
         stage('Desplegar en Producción (CD)') {
