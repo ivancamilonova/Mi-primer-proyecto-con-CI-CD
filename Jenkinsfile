@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    tools {
+        // Le dice a Jenkins que inyecte la herramienta que configuramos en el Paso 1
+        python 'Python3'
+    }
+
     stages {
         stage('Clonar y Verificar') {
             steps {
@@ -10,19 +15,9 @@ pipeline {
         }
         stage('Ejecutar Pruebas (CI)') {
             steps {
-                echo 'Corriendo pruebas de software automáticas usando el entorno de desarrollo...'
-                
-                // Explicación técnica: Como el comando 'python3' no existe dentro del contenedor de Jenkins,
-                // usamos el binario estático de Python para entornos embebidos si es necesario,
-                // o forzamos la instalación rápida de Python dentro del contenedor usando los comandos nativos.
-                
-                sh '''
-                    if ! command -v python3 &> /dev/null; then
-                        echo "Instalando un entorno ligero de Python en el contenedor para la prueba..."
-                        apt-get update && apt-get install -y python3
-                    fi
-                    python3 test_app.py
-                '''
+                echo 'Corriendo pruebas de software automáticas con la herramienta nativa de Jenkins...'
+                // Al usar la sección tools, el comando python ya estará disponible directamente
+                sh 'python3 test_app.py'
             }
         }
         stage('Desplegar en Producción (CD)') {
