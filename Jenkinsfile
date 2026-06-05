@@ -9,16 +9,18 @@ pipeline {
             }
         }
         stage('Ejecutar Pruebas (CI)') {
+            agent {
+                // Le dice a Jenkins: "Baja una imagen oficial de Python aislada para correr esta prueba"
+                docker { image 'python:3.10-slim' }
+            }
             steps {
-                echo 'Corriendo pruebas de software automáticas...'
-                // Jenkins ejecuta la prueba de Python
-                sh 'python3 test_app.py'
+                echo 'Corriendo pruebas de software automáticas dentro de un entorno aislado de Python...'
+                sh 'python test_app.py'
             }
         }
         stage('Desplegar en Producción (CD)') {
             steps {
                 echo '¡Pruebas exitosas! Moviendo la aplicación al entorno de producción...'
-                // Aquí iría el comando para empaquetar en Docker o subir a la nube
                 echo 'Aplicación desplegada y operando al 100%.'
             }
         }
